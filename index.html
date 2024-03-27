@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<style type="text/css">
+		html{
+			font-family: Gill Sans, sans-serif;
+
+		}
+		#main{
+			width: auto;
+			height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+		}
+		.rowDiv{
+		
+			 display: flex;
+    align-items: center;
+    justify-content: center;
+
+		}
+		.squareDiv{
+			color: #fafafa;
+			    border-radius: 0.3rem;
+    margin: 1px;
+			border:  1px solid #ddd;
+			height: 5vh;
+			max-height: 5vw;
+			width: 5vh;
+			max-width: 5vw;
+display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+    font-size: calc(1.1vh + 1.1vw);
+		}
+		.clickable{
+			cursor: pointer;
+			background-color: #ddffdd;
+		}
+		.score{
+margin-top: 5rem;
+font-weight: 600;
+display: block;
+		}
+		.score span{
+			font-size: 30px;
+			display: block;
+			text-align: center;
+			margin-top: 10px;
+		}
+		.buttons{
+			width: 50vh;
+			max-width: 50vw;
+			margin-top: 20px;
+			display: flex;
+    align-content: center;
+    justify-content: space-around;
+    align-items: center;
+		}
+		.buttonUndo{
+			padding: 10px;
+			width: 45%;
+			margin: 0;
+			background-color: #3B4;
+			color: #fafafa;
+			border: none;
+			border-radius: 0.3rem;
+			font-weight: 700;
+				cursor: pointer;
+		}
+		.buttonUndo:disabled{
+			    opacity: 0.5;
+    cursor: not-allowed;
+		}
+		.buttonReset{
+			padding: 10px;
+			width: 45%;
+			margin: 0;
+			background-color: #E30;
+			color: #fafafa;
+			border: none;
+			border-radius: 0.3rem;
+			font-weight: 700;
+			cursor: pointer;
+		}
+		.clicked{
+			background-color: #f66;
+		}
+	</style>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Game Project</title>
+</head>
+<body>
+<div id="main"></div>
+<script type="text/javascript">
+	localStorage.setItem("squareCount", 10);
+	localStorage.setItem("totalSquare", localStorage.getItem("squareCount")*localStorage.getItem("squareCount"));
+	localStorage.setItem("minX", 1);
+	localStorage.setItem("maxX", localStorage.getItem("squareCount"));
+	localStorage.setItem("minY", 1);
+	localStorage.setItem("maxY", localStorage.getItem("squareCount"));
+	localStorage.setItem("score", 0);
+	localStorage.setItem("squareHistory",  JSON.stringify([]));
+	localStorage.setItem("historyNumber",  3);
+
+
+
+	let mainDiv = document.getElementById('main');
+
+		mainDiv.innerHTML += '<div style="display: none;" id="beforeSquare"></div>';
+	for (let a = 1; a <= localStorage.getItem("squareCount") ; a++) {	
+mainDiv.innerHTML += '<div class="rowDiv" id="'+a+'Row"></div>';
+	}
+	for (let i = 1; i <= localStorage.getItem("squareCount") ; i++) {
+		
+for (let j = 1; j <= localStorage.getItem("squareCount") ; j++) {
+			document.getElementById(i+'Row').innerHTML += '<div id="x'+j+'y'+i+'" class="clickable squareDiv" data-x="'+j+'" data-y="'+i+'" onclick="clickSquare('+j+','+i+')"></div>';
+	}
+	
+	}
+	function closeAllSquares(){
+		Array.from(document.getElementsByClassName('squareDiv')).forEach(
+function(square) {
+  square.classList.remove('clickable');
+});
+	}
+		function openSquares(x,y){
+
+			let clickable = 0;
+	if ((x - 3) > 0) {
+		if (!document.getElementById('x'+(x-3)+'y'+(y)).classList.contains('clicked')) {
+			document.getElementById('x'+(x-3)+'y'+(y)).classList.add('clickable');
+			clickable += 1;
+		}
+	}
+	if ((x + 3) <= localStorage.getItem("squareCount")) {
+		if (!document.getElementById('x'+(x+3)+'y'+(y)).classList.contains('clicked')) {
+			document.getElementById('x'+(x+3)+'y'+(y)).classList.add('clickable');
+				clickable += 1;
+		}
+	}
+	if ((y - 3) > 0) {
+		if (!document.getElementById('x'+(x)+'y'+(y-3)).classList.contains('clicked')) {
+			document.getElementById('x'+(x)+'y'+(y-3)).classList.add('clickable');
+				clickable += 1;
+		}
+	}
+	if ((y + 3) <= localStorage.getItem("squareCount")) {
+		if (!document.getElementById('x'+(x)+'y'+(y+3)).classList.contains('clicked')) {
+			document.getElementById('x'+(x)+'y'+(y+3)).classList.add('clickable');
+				clickable += 1;
+		}
+	}
+	if (((x - 2) > 0) && ((y - 2) > 0)) {
+		if (!document.getElementById('x'+(x-2)+'y'+(y-2)).classList.contains('clicked')) {
+			document.getElementById('x'+(x-2)+'y'+(y-2)).classList.add('clickable');
+				clickable += 1;
+		}
+	}
+		if (((x - 2) > 0) && ((y + 2) <= localStorage.getItem("squareCount"))) {
+		if (!document.getElementById('x'+(x-2)+'y'+(y+2)).classList.contains('clicked')) {
+			document.getElementById('x'+(x-2)+'y'+(y+2)).classList.add('clickable');
+				clickable += 1;
+		}
+	}
+		if (((x + 2) <= localStorage.getItem("squareCount")) && ((y - 2) > 0)) {
+		if (!document.getElementById('x'+(x+2)+'y'+(y-2)).classList.contains('clicked')) {
+			document.getElementById('x'+(x+2)+'y'+(y-2)).classList.add('clickable');
+				clickable += 1;
+		}
+	}
+		if (((x + 2) <= localStorage.getItem("squareCount")) && ((y + 2) <= localStorage.getItem("squareCount"))) {
+		if (!document.getElementById('x'+(x+2)+'y'+(y+2)).classList.contains('clicked')) {
+			document.getElementById('x'+(x+2)+'y'+(y+2)).classList.add('clickable');
+				clickable += 1;
+		}
+	}
+	return clickable;
+	}
+	function cantClickable(){
+		alert('Oops! Dostum, buraya tıklayamazsın!');
+	}
+	function clickSquare(x,y){
+	let clickedItem = document.getElementById('x'+x+'y'+y);
+	if (!clickedItem.classList.contains('clickable')) {
+	cantClickable();
+	} else {
+	clickedItem.classList.add("clicked");
+	clickedItem.innerText = parseInt(localStorage.getItem("score"))+1;
+	localStorage.setItem("score", (parseInt(localStorage.getItem("score"))+1));
+	let array = JSON.parse(localStorage.getItem('squareHistory'));
+	array.push([x,y]);
+		localStorage.setItem("squareHistory",JSON.stringify(array));
+	document.getElementById('scoreSpan').innerText = localStorage.getItem("score");
+	
+	clickedItem.classList.add('clicked');
+	clickedItem.classList.remove('clickable');
+	closeAllSquares();
+	let clickable = openSquares(x,y);
+	if (clickable == 0) {
+		alert('Dostum, oyun bitmiş gibi görünüyor... Skorunu da söyleyeyim: '+localStorage.getItem("score"));
+	}
+	}
+	}
+	function reset(){
+		location.reload();
+
+	}
+	function undo(){
+		let array = JSON.parse(localStorage.getItem('squareHistory'));
+		
+if (array.length == 0) {
+alert('Sakin ol dostum, geri alacak bir şey yok, kötü bir şey yapmadın.');
+return;
+}
+let lastElement = array.pop();
+localStorage.setItem('squareHistory',JSON.stringify(array));
+localStorage.setItem("score", (parseInt(localStorage.getItem("score"))-1));
+	document.getElementById('scoreSpan').innerText = localStorage.getItem("score");
+let lastItem = document.getElementById('x'+lastElement[0]+'y'+lastElement[1]);
+lastItem.innerHTML = null;
+lastItem.classList.remove('clicked');
+	localStorage.setItem("historyNumber",  parseInt(localStorage.getItem("historyNumber"))-1);
+	if (localStorage.getItem("historyNumber") <= 0) {
+		document.getElementById("buttonUndo").disabled=true;
+	}
+		closeAllSquares();
+	if(array.length > 0){
+			lastElement = array.pop();
+		openSquares(lastElement[0],lastElement[1]);
+	} else {
+		reset();
+	}
+
+	}
+	document.getElementById('main').innerHTML += '<div id="buttons" class="buttons"><button class="buttonUndo" id="buttonUndo" onclick="undo()">GERİ AL</button><button class="buttonReset" onclick="reset()">BAŞTAN BAŞLA</button></div>';
+	document.getElementById('main').innerHTML += '<div id="score" class="score">Skorunuz: <span id="scoreSpan">0</span></div>';
+</script>
+</body>
+</html>
